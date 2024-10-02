@@ -1,0 +1,7 @@
+BDEntidades\UsuarioDAO.class
+com\thecorner\altruistapp\Altruistapp.class
+BDEntidades\DonacionDAO.class
+Entidades\Usuario.class
+Entidades\Articulo.class
+BDEntidades\DBConnection.class
+Entidades\Donacion.class
