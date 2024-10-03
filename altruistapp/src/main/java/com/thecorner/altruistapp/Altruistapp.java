@@ -1,10 +1,14 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- */
-
 package com.thecorner.altruistapp;
 
+import java.util.Scanner;
 
 public class Altruistapp {
 
+    static Scanner scanner = new Scanner(System.in);
+    public static void main(String[] args) {
+        Menus menu = new Menus(scanner);
+        while (true) {
+            menu.mostrarMenuPrincipal();
+        }
+    }
 }
