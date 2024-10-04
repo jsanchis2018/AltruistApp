@@ -11,6 +11,15 @@ public class Donacion {
     private String estado;
     private Usuario usuarioSolicitante;
     private Articulo articulo;
+    
+    public static final String estadoPendiente = "Pendiente";
+    public static final String estadoSolicitado = "Solicitado";
+    public static final String estadoReservado = "Reservado";
+    public static final String estadoDonado = "Donado";
+    
+    public Donacion() {
+        this.estado = estadoPendiente;
+    }
 
     // Getters y Setters
     public int getIdDonacion() {
@@ -78,11 +87,33 @@ public class Donacion {
     }
 
     public String getNombreArticulo() {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        throw new UnsupportedOperationException("Not supported yet."); 
     }
 
     public void setNombreArticulo(String string) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        throw new UnsupportedOperationException("Not supported yet."); 
+    }
+    
+    public void aceptarSolicitud() {
+        if (estadoSolicitado.equals(this.estado)) {
+            this.estado = estadoReservado;
+            this.fechaAceptacionDonacion = new Date(); // Fecha de aceptación
+        } else {
+            throw new IllegalStateException("La donación no está solicitada.");
+        }
+    }
+
+    // Método para marcar la donación como depositada
+    public void marcarComoDepositada() {
+        if (estadoReservado.equals(this.estado)) {
+            this.estado = estadoDonado;
+        } else {
+            throw new IllegalStateException("La donación aún no está realizada.");
+        }
+    }
+    
+    public String obtenerEstado() {
+        return this.estado;
     }
     
 }

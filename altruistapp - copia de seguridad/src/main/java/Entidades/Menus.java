@@ -4,10 +4,6 @@ import BDEntidades.DonacionDAO;
 import java.util.List;
 import java.util.Scanner;
 
-/**
- *
- * @author Amanda
- */
 public class Menus {
     private final Scanner scanner;
     private final UsuarioDAO usuarioDAO;
@@ -22,7 +18,7 @@ public class Menus {
     }
 
     public void mostrarMenuPrincipal() {
-        System.out.println("\n---- IDENTIFICAR USUARIO ----");
+        System.out.println("\n---- BIENVENIDO ALTRUISTER ----");
         System.out.println("1. Iniciar sesión");
         System.out.println("2. Registrarse");
         System.out.println("3. Salir");
@@ -81,9 +77,9 @@ public class Menus {
     private void mostrarMenuUsuario() {
         while (true) {
             System.out.println("\n---- MENÚ PRINCIPAL ----");
-            System.out.println("1. Ofrecer donación");
-            System.out.println("2. Aceptar donación");
-            System.out.println("3. Revisar solicitudes");
+            System.out.println("1. Ofrecer donación altruista");
+            System.out.println("2. Ver lo que donan otros Altruisters");
+            System.out.println("3. Solicitudes");
             System.out.println("4. Salir");
             System.out.print("Selecciona una opción: ");
             int opcion = scanner.nextInt();
@@ -103,56 +99,64 @@ public class Menus {
     }
 
     private void revisarSolicitudes() {
+   
         System.out.println("\n---- REVISAR SOLICITUDES ----");
-        List<Donacion> solicitudes = donacionDAO.verSolicitudesPendientes(usuarioLogueado.getIdUsuario());
+        System.out.println("1. Solicitudes realizadas");
+        System.out.println("2. Solicitudes recibidas");
+        System.out.print("Seleccione una opción: ");
+        
+        int opcion = scanner.nextInt();
+        scanner.nextLine(); // Limpiar el buffer
 
-        if (solicitudes.isEmpty()) {
-            System.out.println("No hay solicitudes pendientes.");
-            return;
+        switch (opcion) {
+            case 1 -> mostrarSolicitudesHechas();
+            case 2 -> mostrarSolicitudesRecibidas();
+            default -> System.out.println("Opción no válida. Intente de nuevo.");
         }
+    }
 
-        for (int i = 0; i < solicitudes.size(); i++) {
-            Donacion solicitud = solicitudes.get(i);
-            System.out.println((i + 1) + ". Artículo: " + solicitud.getArticulo().getNombre() 
-                               + " | Solicitado por: " + solicitud.getUsuarioSolicitante().getNombreUsuario());
-        }
-        System.out.print("Selecciona una solicitud para gestionar (o 0 para volver): ");
-        int seleccion = scanner.nextInt();
-        scanner.nextLine();
-
-        if (seleccion > 0 && seleccion <= solicitudes.size()) {
-            Donacion donacionSeleccionada = solicitudes.get(seleccion - 1);
-            System.out.println("Artículo seleccionado: " + donacionSeleccionada.getArticulo().getNombre());
-            System.out.println("1. Aceptar donación");
-            System.out.println("2. Rechazar donación");
-            System.out.println("3. Volver al menú anterior");
-            System.out.print("Selecciona una opción: ");
-            int opcion = scanner.nextInt();
-            scanner.nextLine();
-
-            switch (opcion) {
-                case 1 -> {
-                    if (donacionDAO.actualizarEstadoDonacion(donacionSeleccionada.getIdDonacion(), "Aceptada")) {
-                        System.out.println("Donación aceptada.");
-                    } else {
-                        System.out.println("Error al aceptar la donación.");
-                    }
-                }
-                case 2 -> {
-                    if (donacionDAO.actualizarEstadoDonacion(donacionSeleccionada.getIdDonacion(), "Rechazada")) {
-                        System.out.println("Donación rechazada.");
-                    } else {
-                        System.out.println("Error al rechazar la donación.");
-                    }
-                }
-                case 3 -> {
-                    return;
-                }
-                default -> System.out.println("Opción no válida.");
-            }
-        } else if (seleccion == 0) {
+    private void mostrarSolicitudesHechas() {
+        List<Donacion> solicitudesHechas = donacionDAO.verSolicitudesHechas(usuarioLogueado.getIdUsuario());
+        if (solicitudesHechas.isEmpty()) {
+            System.out.println("Sin solicitudes hechas.");
         } else {
-            System.out.println("Selección no válida.");
+            for (Donacion donacion : solicitudesHechas) {
+                String estado = donacion.getEstado().equals(Donacion.estadoDonado) ? "Donado" : "En espera";
+                System.out.println("ID Donación: " + donacion.getIdDonacion() + ", Estado: " + estado);
+            }
+        }
+    }
+
+    private void mostrarSolicitudesRecibidas() {
+        List<Donacion> solicitudesRecibidas = donacionDAO.verSolicitudesRecibidas(usuarioLogueado.getIdUsuario());
+        if (solicitudesRecibidas.isEmpty()) {
+            System.out.println("Sin solicitudes recibidas.");
+        } else {
+            for (Donacion donacion : solicitudesRecibidas) {
+                System.out.println("ID Donación: " + donacion.getIdDonacion() + ", Estado: " + donacion.getEstado());
+            }
+            int idDonacion = scanner.nextInt();
+            scanner.nextLine(); // Limpiar el buffer
+
+            Donacion donacion = solicitudesRecibidas.stream()
+                    .filter(d -> d.getIdDonacion() == idDonacion)
+                    .findFirst()
+                    .orElse(null);
+
+            if (donacion != null) {
+                aceptarSolicitud(donacion);
+            } else {
+                System.out.println("ID de donación no encontrado.");
+            }
+        }
+    }
+
+    private void aceptarSolicitud(Donacion donacion) {
+        try {
+            donacion.aceptarSolicitud();
+            System.out.println("Solicitud aceptada con éxito.");
+        } catch (IllegalStateException e) {
+            System.out.println(e.getMessage());
         }
     }
 
@@ -207,6 +211,7 @@ public class Menus {
             System.out.println("Artículo seleccionado: " + articuloSeleccionado.getNombre());
             System.out.println("1. Solicitar donación");
             System.out.println("2. Volver al menú anterior");
+            System.out.print("Selecciona una opción: ");
             int opcion = scanner.nextInt();
             scanner.nextLine();
 
