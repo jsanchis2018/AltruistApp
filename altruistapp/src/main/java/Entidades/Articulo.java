@@ -1,13 +1,41 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package Entidades;
 
-/**
- *
- * @author THECORNER46
- */
 public class Articulo {
-    
+    private int idArticulo;
+    private String nombre;
+    private String estado;
+    private int idPuntoDeRecogida;
+
+    // Getters y Setters
+    public int getIdArticulo() {
+        return idArticulo;
+    }
+
+    public void setIdArticulo(int idArticulo) {
+        this.idArticulo = idArticulo;
+    }
+
+    public String getNombre() {
+        return nombre;
+    }
+
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
+    }
+
+    public String getEstado() {
+        return estado;
+    }
+
+    public void setEstado(String estado) {
+        this.estado = estado;
+    }
+
+    public int getIdPuntoDeRecogida() {
+        return idPuntoDeRecogida;
+    }
+
+    public void setIdPuntoDeRecogida(int idPuntoDeRecogida) {
+        this.idPuntoDeRecogida = idPuntoDeRecogida;
+    }
 }

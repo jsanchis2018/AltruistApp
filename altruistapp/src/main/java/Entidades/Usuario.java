@@ -1,7 +1,3 @@
-<<<<<<< HEAD
-=======
-
->>>>>>> 87821ff0c56212e7f5d8ba80a23cf5cc0011648d
 package Entidades;
 
 public class Usuario {
@@ -9,6 +5,7 @@ public class Usuario {
     private String nombreUsuario;
     private String contraseña;
 
+    // Getters y Setters
     public int getIdUsuario() {
         return idUsuario;
     }
@@ -32,10 +29,4 @@ public class Usuario {
     public void setContraseña(String contraseña) {
         this.contraseña = contraseña;
     }
-<<<<<<< HEAD
-=======
-    
-    
-    
->>>>>>> 87821ff0c56212e7f5d8ba80a23cf5cc0011648d
 }
