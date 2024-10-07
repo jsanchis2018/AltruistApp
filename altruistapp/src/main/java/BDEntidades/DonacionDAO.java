@@ -9,6 +9,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import Entidades.Usuario;
+import java.sql.DriverManager;
 
 
 public class DonacionDAO {
@@ -81,10 +82,7 @@ public class DonacionDAO {
         return false;
     }
 
-
-    
-
-            public List<Donacion> verSolicitudesPendientes(int idDonante) {
+    public List<Donacion> verSolicitudesPendientes(int idDonante) {
         List<Donacion> solicitudes = new ArrayList<>();
         String query = "SELECT d.id_donacion, d.estado, a.nombre AS nombre_articulo, u.nombre_usuario " +
                        "FROM donacion d " +
@@ -134,5 +132,41 @@ public class DonacionDAO {
         }
     }
 
+    public List<Donacion> verSolicitudesRecibidas(int idUsuario) {
+        List<Donacion> solicitudesRecibidas = new ArrayList<>();
+        String sql = "SELECT * FROM donacion WHERE id_aceptadonacion = ?";
 
-}
+        try (Connection conn = this.connect();
+        PreparedStatement pstmt = conn.prepareStatement(sql)) {
+        pstmt.setInt(1, idUsuario);
+        ResultSet rs = pstmt.executeQuery();
+
+        while (rs.next()) {
+            Donacion donacion = new Donacion();
+            donacion.setIdDonacion(rs.getInt("id_donacion"));
+            donacion.setEstado(rs.getString("estado"));
+            // Completa la inicialización de la donación según tu estructura de datos
+            solicitudesRecibidas.add(donacion);
+        }
+        } catch (SQLException e) {
+        System.out.println(e.getMessage());
+        }
+
+        return solicitudesRecibidas;
+    }
+
+    private Connection connect() {
+   
+        String url = "jdbc:sqlite:altruistapp.db";
+        Connection conn = null;
+        try {
+        conn = DriverManager.getConnection(url);
+        } catch (SQLException e) {
+        System.out.println(e.getMessage());
+        }
+        return conn;
+    }
+    public List<Donacion> verSolicitudesHechas(int idUsuario) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+ }
