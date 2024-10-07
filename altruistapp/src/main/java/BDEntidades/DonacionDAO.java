@@ -82,38 +82,33 @@ public class DonacionDAO {
         return false;
     }
 
-    public List<Donacion> verSolicitudesPendientes(int idDonante) {
-        List<Donacion> solicitudes = new ArrayList<>();
-        String query = "SELECT d.id_donacion, d.estado, a.nombre AS nombre_articulo, u.nombre_usuario " +
-                       "FROM donacion d " +
-                       "JOIN articulo a ON d.id_donacion = a.id_donacion " +
-                       "LEFT JOIN usuario u ON d.id_aceptadonacion = u.id_usuario " + // Cambié a LEFT JOIN para evitar errores
-                       "WHERE d.id_ofrecedonacion = ? AND d.estado = 'Pendiente'";
-        try (Connection connection = DBConnection.getConnection();
-             PreparedStatement stmt = connection.prepareStatement(query)) {
-            stmt.setInt(1, idDonante);
-            ResultSet rs = stmt.executeQuery();
+        public List<Donacion> verSolicitudesPendientes(int idDonante) {
+            List<Donacion> solicitudes = new ArrayList<>();
+            String query = "SELECT d.id_donacion, d.estado, a.nombre AS nombre_articulo " +
+                           "FROM donacion d " +
+                           "JOIN articulo a ON d.id_donacion = a.id_donacion " +
+                           "WHERE d.id_ofrecedonacion = ? AND d.estado = 'Pendiente'";
+            try (Connection connection = DBConnection.getConnection();
+                 PreparedStatement stmt = connection.prepareStatement(query)) {
+                stmt.setInt(1, idDonante);
+                ResultSet rs = stmt.executeQuery();
 
-            while (rs.next()) {
-                Donacion donacion = new Donacion();
-                donacion.setIdDonacion(rs.getInt("id_donacion"));
-                donacion.setEstado(rs.getString("estado"));
+                while (rs.next()) {
+                    Donacion donacion = new Donacion();
+                    donacion.setIdDonacion(rs.getInt("id_donacion"));
+                    donacion.setEstado(rs.getString("estado"));
 
-                Articulo articulo = new Articulo();
-                articulo.setNombre(rs.getString("nombre_articulo"));
-                donacion.setArticulo(articulo);
+                    Articulo articulo = new Articulo();
+                    articulo.setNombre(rs.getString("nombre_articulo"));
+                    donacion.setArticulo(articulo);
 
-                Usuario solicitante = new Usuario();
-                solicitante.setNombreUsuario(rs.getString("nombre_usuario"));
-                donacion.setUsuarioSolicitante(solicitante);
-
-                solicitudes.add(donacion);
+                    solicitudes.add(donacion);
+                }
+            } catch (SQLException e) {
+                System.out.println("Error al obtener solicitudes pendientes: " + e.getMessage());
             }
-        } catch (SQLException e) {
-            System.out.println("Error al obtener solicitudes: " + e.getMessage());
+            return solicitudes;
         }
-        return solicitudes;
-    }
 
 
 
