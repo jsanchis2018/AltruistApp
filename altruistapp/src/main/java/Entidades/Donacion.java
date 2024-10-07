@@ -12,13 +12,13 @@ public class Donacion {
     private Usuario usuarioSolicitante;
     private Articulo articulo;
     
-    public static final String estadoPendiente = "Pendiente";
-    public static final String estadoSolicitado = "Solicitado";
-    public static final String estadoReservado = "Reservado";
-    public static final String estadoDonado = "Donado";
+    public static String estadoPendiente = "Pendiente";
+    public static String estadoSolicitado = "Solicitado";
+    public static String estadoReservado = "Reservado";
+    public static String estadoDonado = "Donado";
     
     public Donacion() {
-        this.estado = estadoPendiente;
+     
     }
 
     // Getters y Setters
