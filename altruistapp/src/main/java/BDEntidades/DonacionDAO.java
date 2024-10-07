@@ -145,44 +145,45 @@ public class DonacionDAO {
             Donacion donacion = new Donacion();
             donacion.setIdDonacion(rs.getInt("id_donacion"));
             donacion.setEstado(rs.getString("estado"));
-            
-            Articulo articulo = new Articulo();
-            articulo.setIdArticulo(rs.getInt("id_articulo"));
-            articulo.setNombre(rs.getString("nombre"));
-            
-            donacion.setArticulo(articulo);
-            
+            // Completa la inicialización de la donación según tu estructura de datos
             solicitudesRecibidas.add(donacion);
         }
         } catch (SQLException e) {
-        System.out.println("Error al obtener solicitudes recibidas: " + e.getMessage());
+        System.out.println(e.getMessage());
         }
 
         return solicitudesRecibidas;
     }
     
         public List<Donacion> verSolicitudesHechas(int idUsuario) {
-        List<Donacion> solicitudesHechas = new ArrayList<>();
-        String query = "SELECT * FROM donacion WHERE id_ofrecedonacion = ?";
+            List<Donacion> solicitudesHechas = new ArrayList<>();
+            String query = "SELECT d.id_donacion, d.estado, a.nombre AS nombre_articulo " +
+                           "FROM donacion d " +
+                           "JOIN articulo a ON d.id_donacion = a.id_donacion " +
+                           "WHERE d.id_ofrecedonacion = ?";
 
-    try (Connection connection = DBConnection.getConnection();
-             PreparedStatement stmt = connection.prepareStatement(query)) {
-        stmt.setInt(1, idUsuario);
-        ResultSet rs = stmt.executeQuery();
+            try (Connection connection = DBConnection.getConnection();
+                 PreparedStatement stmt = connection.prepareStatement(query)) {
+                stmt.setInt(1, idUsuario);
+                ResultSet rs = stmt.executeQuery();
 
-        while (rs.next()) {
-            Donacion donacion = new Donacion();
-            donacion.setIdDonacion(rs.getInt("id_donacion"));
-            donacion.setEstado(rs.getString("estado"));
-            // Completa la inicialización de la donación según tu estructura de datos
-            solicitudesHechas.add(donacion);
+                while (rs.next()) {
+                    Donacion donacion = new Donacion();
+                    donacion.setIdDonacion(rs.getInt("id_donacion"));
+                    donacion.setEstado(rs.getString("estado"));
+
+                    Articulo articulo = new Articulo();
+                    articulo.setNombre(rs.getString("nombre_articulo"));
+                    donacion.setArticulo(articulo);
+
+                    solicitudesHechas.add(donacion);
+                }
+            } catch (SQLException e) {
+                System.out.println("Error al obtener solicitudes hechas: " + e.getMessage());
+            }
+
+            return solicitudesHechas;
         }
-        } catch (SQLException e) {
-        System.out.println(e.getMessage());
-        }
 
-        return solicitudesHechas;
-    
-    }
 
  }

@@ -24,7 +24,7 @@ public class Altruistapp {
         
         Menus menu = new Menus(scanner);
         while (true) {
-            menu.mostrarMenuPrincipal();
+                menu.mostrarMenuPrincipal();
         }     
     }
 }

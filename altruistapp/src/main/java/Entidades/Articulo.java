@@ -1,6 +1,8 @@
 package Entidades;
 
 public class Articulo {
+
+    static String getNombre;
     private int idArticulo;
     private String nombre;
     private String estado;

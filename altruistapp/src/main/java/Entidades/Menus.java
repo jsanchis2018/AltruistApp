@@ -1,4 +1,5 @@
 package Entidades;
+
 import BDEntidades.UsuarioDAO;
 import BDEntidades.DonacionDAO;
 import java.util.List;
@@ -10,7 +11,7 @@ public class Menus {
     private final DonacionDAO donacionDAO;
     private Usuario usuarioLogueado;
 
-    public Menus (Scanner scanner) {
+    public Menus(Scanner scanner) {
         this.scanner = scanner;
         this.usuarioDAO = new UsuarioDAO();
         this.donacionDAO = new DonacionDAO();
@@ -27,16 +28,10 @@ public class Menus {
         scanner.nextLine();
 
         switch (opcion) {
-            case 1:
-                iniciarSesion();
-                break;
-            case 2:
-                registrarse();
-                break;
-            case 3:
-                System.exit(0);
-            default:
-                System.out.println("Opción no válida.");
+            case 1 -> iniciarSesion();
+            case 2 -> registrarse();
+            case 3 -> System.exit(0);
+            default -> System.out.println("Opción no válida.");
         }
     }
 
@@ -99,12 +94,10 @@ public class Menus {
     }
 
     private void revisarSolicitudes() {
-   
         System.out.println("\n---- REVISAR SOLICITUDES ----");
         System.out.println("1. Solicitudes realizadas");
         System.out.println("2. Solicitudes recibidas");
         System.out.print("Seleccione una opción: ");
-        
         int opcion = scanner.nextInt();
         scanner.nextLine(); // Limpiar el buffer
 
@@ -115,6 +108,20 @@ public class Menus {
         }
     }
 
+    private void mostrarSolicitudesHechas() {
+        List<Donacion> solicitudesHechas = donacionDAO.verSolicitudesHechas(usuarioLogueado.getIdUsuario());
+        if (solicitudesHechas.isEmpty()) {
+            System.out.println("Sin solicitudes hechas.");
+        } else {
+            for (Donacion donacion : solicitudesHechas) {
+                // Verificamos que el artículo no sea null
+                Articulo articulo = donacion.getArticulo();
+                String nombreArticulo = (articulo != null) ? articulo.getNombre() : "Artículo no disponible";
+                String estado = donacion.getEstado().equals(Donacion.estadoDonado) ? "Donado" : "En espera";
+                System.out.println("ID Donación: " + donacion.getIdDonacion() + ", Artículo: " + nombreArticulo + ", Estado: " + estado);
+            }
+        }
+    }
 
     private void mostrarSolicitudesRecibidas() {
         List<Donacion> solicitudesRecibidas = donacionDAO.verSolicitudesRecibidas(usuarioLogueado.getIdUsuario());
@@ -122,8 +129,9 @@ public class Menus {
             System.out.println("Sin solicitudes recibidas.");
         } else {
             for (Donacion donacion : solicitudesRecibidas) {
-                System.out.println("ID Donación: " + donacion.getIdDonacion() + "Artículo: " + donacion.getArticulo().getNombre() + ", Estado: " + donacion.getEstado());
+                System.out.println("ID Donación: " + donacion.getIdDonacion() + ", Estado: " + donacion.getEstado());
             }
+            System.out.print("Seleccione una ID de donación para aceptar: ");
             int idDonacion = scanner.nextInt();
             scanner.nextLine(); // Limpiar el buffer
 
@@ -172,6 +180,7 @@ public class Menus {
 
         Donacion donacion = new Donacion();
         donacion.setIdOfreceDonacion(usuarioLogueado.getIdUsuario());
+        donacion.setArticulo(articulo); // Asignamos el artículo a la donación
 
         if (donacionDAO.ofrecerDonacion(donacion, articulo)) {
             System.out.println("Donación registrada exitosamente.");
@@ -206,30 +215,13 @@ public class Menus {
 
             if (opcion == 1) {
                 if (donacionDAO.aceptarDonacion(articuloSeleccionado.getIdArticulo(), usuarioLogueado.getIdUsuario())) {
-                    System.out.println("Donación solicitada exitosamente.");
+                    System.out.println("Donación aceptada exitosamente.");
                 } else {
-                    System.out.println("Error al solicitar la donación.");
+                    System.out.println("Error al aceptar la donación.");
                 }
             }
         } else {
             System.out.println("Selección no válida.");
-        }
-    }
-
-    public void mostrarSolicitudesHechas() {
-        System.out.println("\n---- SOLICITUDES PENDIENTES ----");
-        List<Donacion> solicitudes = donacionDAO.verSolicitudesPendientes(usuarioLogueado.getIdUsuario());
-
-        if (solicitudes.isEmpty()) {
-            System.out.println("No hay solicitudes pendientes.");
-        } else {
-            for (Donacion donacion : solicitudes) {
-                System.out.println("ID Donación: " + donacion.getIdDonacion());
-                System.out.println("Estado: " + donacion.getEstado());
-                System.out.println("Artículo: " + donacion.getArticulo().getNombre());
-                System.out.println("Solicitado por: " + donacion.getUsuarioSolicitante().getNombreUsuario());
-                System.out.println("-------------------------");
-            }
         }
     }
 }
