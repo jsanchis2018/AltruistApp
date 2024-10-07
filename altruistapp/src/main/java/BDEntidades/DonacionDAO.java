@@ -145,11 +145,17 @@ public class DonacionDAO {
             Donacion donacion = new Donacion();
             donacion.setIdDonacion(rs.getInt("id_donacion"));
             donacion.setEstado(rs.getString("estado"));
-            // Completa la inicialización de la donación según tu estructura de datos
+            
+            Articulo articulo = new Articulo();
+            articulo.setIdArticulo(rs.getInt("id_articulo"));
+            articulo.setNombre(rs.getString("nombre"));
+            
+            donacion.setArticulo(articulo);
+            
             solicitudesRecibidas.add(donacion);
         }
         } catch (SQLException e) {
-        System.out.println(e.getMessage());
+        System.out.println("Error al obtener solicitudes recibidas: " + e.getMessage());
         }
 
         return solicitudesRecibidas;

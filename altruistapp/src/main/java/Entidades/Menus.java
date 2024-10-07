@@ -115,17 +115,6 @@ public class Menus {
         }
     }
 
-    private void mostrarSolicitudesHechas() {
-        List<Donacion> solicitudesHechas = donacionDAO.verSolicitudesHechas(usuarioLogueado.getIdUsuario());
-        if (solicitudesHechas.isEmpty()) {
-            System.out.println("Sin solicitudes hechas.");
-        } else {
-            for (Donacion donacion : solicitudesHechas) {
-                String estado = donacion.getEstado().equals(Donacion.estadoDonado) ? "Donado" : "En espera";
-                System.out.println("ID Donación: " + donacion.getIdDonacion() + ", Estado: " + estado);
-            }
-        }
-    }
 
     private void mostrarSolicitudesRecibidas() {
         List<Donacion> solicitudesRecibidas = donacionDAO.verSolicitudesRecibidas(usuarioLogueado.getIdUsuario());
@@ -133,7 +122,7 @@ public class Menus {
             System.out.println("Sin solicitudes recibidas.");
         } else {
             for (Donacion donacion : solicitudesRecibidas) {
-                System.out.println("ID Donación: " + donacion.getIdDonacion() + ", Estado: " + donacion.getEstado());
+                System.out.println("ID Donación: " + donacion.getIdDonacion() + "Artículo: " + donacion.getArticulo().getNombre() + ", Estado: " + donacion.getEstado());
             }
             int idDonacion = scanner.nextInt();
             scanner.nextLine(); // Limpiar el buffer
@@ -227,7 +216,7 @@ public class Menus {
         }
     }
 
-    public void mostrarSolicitudesPendientes() {
+    public void mostrarSolicitudesHechas() {
         System.out.println("\n---- SOLICITUDES PENDIENTES ----");
         List<Donacion> solicitudes = donacionDAO.verSolicitudesPendientes(usuarioLogueado.getIdUsuario());
 
