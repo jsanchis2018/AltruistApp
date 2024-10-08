@@ -108,58 +108,54 @@ public class Menus {
         }
     }
 
-        private void mostrarSolicitudesHechas() {
-            List<Donacion> solicitudesHechas = donacionDAO.verSolicitudesHechas(usuarioLogueado.getIdUsuario());
-            if (solicitudesHechas.isEmpty()) {
-                System.out.println("No tienes solicitudes hechas.");
-            } else {
-                for (Donacion donacion : solicitudesHechas) {
-                    String nombreArticulo = (donacion.getArticulo() != null) ? donacion.getArticulo().getNombre() : "Artículo no disponible";
-                    String estado = donacion.getEstado().equals("Aceptada") ? "Donado" : "Pendiente";
-                    System.out.println("ID Donación: " + donacion.getIdDonacion() + ", Artículo: " + nombreArticulo + ", Estado: " + estado);
-                }
+    private void mostrarSolicitudesHechas() {
+        List<Donacion> solicitudesHechas = donacionDAO.verSolicitudesHechas(usuarioLogueado.getIdUsuario());
+        if (solicitudesHechas.isEmpty()) {
+            System.out.println("Sin solicitudes hechas.");
+        } else {
+            for (Donacion donacion : solicitudesHechas) {
+                // Verificamos que el artículo no sea null
+                Articulo articulo = donacion.getArticulo();
+                String nombreArticulo = (articulo != null) ? articulo.getNombre() : "Artículo no disponible";
+                String estado = donacion.getEstado().equals(Donacion.estadoDonado) ? "Donado" : "En espera";
+                System.out.println("ID Donación: " + donacion.getIdDonacion() + ", Artículo: " + nombreArticulo + ", Estado: " + estado);
             }
         }
+    }
 
+    private void mostrarSolicitudesRecibidas() {
+        List<Donacion> solicitudesRecibidas = donacionDAO.verSolicitudesRecibidas(usuarioLogueado.getIdUsuario());
+        if (solicitudesRecibidas.isEmpty()) {
+            System.out.println("Sin solicitudes recibidas.");
+        } else {
+            for (Donacion donacion : solicitudesRecibidas) {
+                System.out.println("ID Donación: " + donacion.getIdDonacion() + ", Estado: " + donacion.getEstado());
+            }
+            System.out.print("Seleccione una ID de donación para aceptar: ");
+            int idDonacion = scanner.nextInt();
+            scanner.nextLine(); // Limpiar el buffer
 
-        private void mostrarSolicitudesRecibidas() {
-            List<Donacion> solicitudesRecibidas = donacionDAO.verSolicitudesPendientes(usuarioLogueado.getIdUsuario());
-            if (solicitudesRecibidas.isEmpty()) {
-                System.out.println("No tienes solicitudes pendientes.");
-            } else {
-                for (Donacion donacion : solicitudesRecibidas) {
-                    String nombreArticulo = (donacion.getArticulo() != null) ? donacion.getArticulo().getNombre() : "Artículo no disponible";
-                    System.out.println("ID Donación: " + donacion.getIdDonacion() + ", Artículo: " + nombreArticulo + ", Estado: " + donacion.getEstado());
-                }
-                System.out.print("Ingresa la ID de donación para aceptar: ");
-                int idDonacion = scanner.nextInt();
-                scanner.nextLine(); // Limpiar buffer
-
-                Donacion donacionSeleccionada = solicitudesRecibidas.stream()
+            Donacion donacion = solicitudesRecibidas.stream()
                     .filter(d -> d.getIdDonacion() == idDonacion)
                     .findFirst()
                     .orElse(null);
 
-                if (donacionSeleccionada != null) {
-                    aceptarSolicitud(donacionSeleccionada);
-                } else {
-                    System.out.println("No se encontró la donación seleccionada.");
-                }
-            }
-        }
-
-        private void aceptarSolicitud(Donacion donacion) {
-            if ("Pendiente".equals(donacion.getEstado())) {
-                if (donacionDAO.actualizarEstadoDonacion(donacion.getIdDonacion(), "Aceptada")) {
-                    System.out.println("Solicitud aceptada exitosamente.");
-                } else {
-                    System.out.println("Hubo un error al aceptar la solicitud.");
-                }
+            if (donacion != null) {
+                aceptarSolicitud(donacion);
             } else {
-                System.out.println("La solicitud ya no está pendiente.");
+                System.out.println("ID de donación no encontrado.");
             }
         }
+    }
 
+    private void aceptarSolicitud(Donacion donacion) {
+        try {
+            donacion.aceptarSolicitud();
+            System.out.println("Solicitud aceptada con éxito.");
+        } catch (IllegalStateException e) {
+            System.out.println(e.getMessage());
+        }
+    }
 
     private void ofrecerDonacion() {
         System.out.println("\n---- OFRECER DONACIÓN ----");
