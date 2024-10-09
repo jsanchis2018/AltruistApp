@@ -25,7 +25,7 @@ public class Articulo {
         this.nombre = nombre;
     }
 
-    public String getEstado() {
+    public String getEstado() {        
         return estado;
     }
 

@@ -161,8 +161,19 @@ public class Menus {
         System.out.println("\n---- OFRECER DONACIÓN ----");
         System.out.print("Nombre del artículo: ");
         String nombreArticulo = scanner.nextLine();
-        System.out.print("Estado del artículo (Nuevo, Usado): ");
-        String estadoArticulo = scanner.nextLine();
+        
+        //Articulo
+        System.out.print("Estado del artículo : ");
+        System.out.println("");
+        System.out.println("1. Nuevo");
+        System.out.println("2. Usado");
+        System.out.print("Selecciona una opción: ");
+        int option_user = scanner.nextInt();
+        String estadoArticulo = "Nuevo";
+        
+        if(option_user != 1){
+            estadoArticulo = "Usado";
+        } 
 
         System.out.println("Establece punto de recogida:");
         System.out.println("1. Locutorio");
