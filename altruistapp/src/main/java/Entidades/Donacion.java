@@ -86,34 +86,4 @@ public class Donacion {
         this.articulo = articulo;
     }
 
-    public String getNombreArticulo() {
-        throw new UnsupportedOperationException("Not supported yet."); 
-    }
-
-    public void setNombreArticulo(String string) {
-        throw new UnsupportedOperationException("Not supported yet."); 
-    }
-    
-    public void aceptarSolicitud() {
-        if (estadoSolicitado.equals(this.estado)) {
-            this.estado = estadoReservado;
-            this.fechaAceptacionDonacion = new Date(); // Fecha de aceptación
-        } else {
-            throw new IllegalStateException("La donación no está solicitada.");
-        }
-    }
-
-    // Método para marcar la donación como depositada
-    public void marcarComoDepositada() {
-        if (estadoReservado.equals(this.estado)) {
-            this.estado = estadoDonado;
-        } else {
-            throw new IllegalStateException("La donación aún no está realizada.");
-        }
-    }
-    
-    public String obtenerEstado() {
-        return this.estado;
-    }
-    
 }

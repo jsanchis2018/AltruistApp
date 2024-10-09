@@ -132,9 +132,12 @@ public class DonacionDAO {
         }
     }
 
-    public List<Donacion> verSolicitudesRecibidas(int idUsuario) {
+    public List<Donacion> mostrarSolicitudesRealizadas(int idUsuario) {
         List<Donacion> solicitudesRecibidas = new ArrayList<>();
-        String query = "SELECT * FROM donacion WHERE id_aceptadonacion = ?";
+        String query = "SELECT d.id_donacion, d.estado, a.nombre AS nombre_articulo " +
+                           "FROM donacion d " +
+                           "JOIN articulo a ON d.id_donacion = a.id_donacion " +
+                           "WHERE d.id_aceptadonacion = ?";
 
     try (Connection connection = DBConnection.getConnection();
              PreparedStatement stmt = connection.prepareStatement(query)) {
@@ -155,7 +158,7 @@ public class DonacionDAO {
         return solicitudesRecibidas;
     }
     
-        public List<Donacion> verSolicitudesHechas(int idUsuario) {
+        public List<Donacion> mostrarDonacionesHechas(int idUsuario) {
             List<Donacion> solicitudesHechas = new ArrayList<>();
             String query = "SELECT d.id_donacion, d.estado, a.nombre AS nombre_articulo " +
                            "FROM donacion d " +
