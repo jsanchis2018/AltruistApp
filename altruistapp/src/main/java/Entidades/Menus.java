@@ -125,8 +125,7 @@ public class Menus {
     private void revisarSolicitudes() {
         System.out.println("\n---- REVISAR SOLICITUDES ----");
         System.out.println("1. Mis donaciones");
-        System.out.println("2. Solicitudes entrantes");
-        System.out.println("3. Solicitudes salientes");
+        System.out.println("2. Donaciones realizadas");
         System.out.print("Seleccione una opción: ");
         int opcion = scanner.nextInt();
         scanner.nextLine(); // Limpiar el buffer
@@ -156,12 +155,14 @@ public class Menus {
     private void mostrarSolicitudesRealizadas() { //muestra las solicitudes realizadas, solo pueden estar en espera o aceptadas 
         List<Donacion> solicitudesRecibidas = donacionDAO.mostrarSolicitudesRealizadas(usuarioLogueado.getIdUsuario());
         if (solicitudesRecibidas.isEmpty()) {
-            System.out.println("Sin solicitudes recibidas.");
+            System.out.println("Sin solicitudes realizadas.");
         } else {
+            
+            // verificar este codigo de solicitudes
             for (Donacion donacion : solicitudesRecibidas) {
                 Articulo articulo = donacion.getArticulo();
                 var nombreArticulo = (articulo != null) ? articulo.getNombre() : "Artículo no disponible";
-                String estadoDonado = donacion.getEstado().equals(Donacion.estadoDonado) ? "Donado" : "En espera";
+                String estadoDonado = donacion.getEstado().equals(Donacion.estadoDonado) ? "Donado" : "Aceptado";
                 System.out.println("ID Donación: " + donacion.getIdDonacion() + ", Artículo: " + nombreArticulo + ", Estado: " + estadoDonado);
          
             }
