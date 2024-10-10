@@ -124,7 +124,7 @@ public class Menus {
 
     private void revisarSolicitudes() {
         System.out.println("\n---- REVISAR SOLICITUDES ----");
-        System.out.println("1. Mis donaciones");
+        System.out.println("1. Donado por ti");
         System.out.println("2. Donaciones realizadas");
         System.out.print("Seleccione una opción: ");
         int opcion = scanner.nextInt();
