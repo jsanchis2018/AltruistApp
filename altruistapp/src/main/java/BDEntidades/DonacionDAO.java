@@ -9,6 +9,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import Entidades.Usuario;
+import java.sql.DriverManager;
 
 
 public class DonacionDAO {
@@ -81,10 +82,7 @@ public class DonacionDAO {
         return false;
     }
 
-
-    
-
-            public List<Donacion> verSolicitudesPendientes(int idDonante) {
+    public List<Donacion> verSolicitudesPendientes(int idDonante) {
         List<Donacion> solicitudes = new ArrayList<>();
         String query = "SELECT d.id_donacion, d.estado, a.nombre AS nombre_articulo, u.nombre_usuario " +
                        "FROM donacion d " +
@@ -134,5 +132,61 @@ public class DonacionDAO {
         }
     }
 
+    public List<Donacion> mostrarSolicitudesRealizadas(int idUsuario) {
+        List<Donacion> solicitudesRecibidas = new ArrayList<>();
+        String query = "SELECT d.id_donacion, d.estado, a.nombre AS nombre_articulo " +
+                           "FROM donacion d " +
+                           "JOIN articulo a ON d.id_donacion = a.id_donacion " +
+                           "WHERE d.id_aceptadonacion = ?";
 
-}
+    try (Connection connection = DBConnection.getConnection();
+             PreparedStatement stmt = connection.prepareStatement(query)) {
+        stmt.setInt(1, idUsuario);
+        ResultSet rs = stmt.executeQuery();
+
+        while (rs.next()) {
+            Donacion donacion = new Donacion();
+            donacion.setIdDonacion(rs.getInt("id_donacion"));
+            donacion.setEstado(rs.getString("estado"));
+            // Completa la inicialización de la donación según tu estructura de datos
+            solicitudesRecibidas.add(donacion);
+        }
+        } catch (SQLException e) {
+        System.out.println(e.getMessage());
+        }
+
+        return solicitudesRecibidas;
+    }
+    
+        public List<Donacion> mostrarDonacionesHechas(int idUsuario) {
+            List<Donacion> solicitudesHechas = new ArrayList<>();
+            String query = "SELECT d.id_donacion, d.estado, a.nombre AS nombre_articulo " +
+                           "FROM donacion d " +
+                           "JOIN articulo a ON d.id_donacion = a.id_donacion " +
+                           "WHERE d.id_ofrecedonacion = ?";
+
+            try (Connection connection = DBConnection.getConnection();
+                 PreparedStatement stmt = connection.prepareStatement(query)) {
+                stmt.setInt(1, idUsuario);
+                ResultSet rs = stmt.executeQuery();
+
+                while (rs.next()) {
+                    Donacion donacion = new Donacion();
+                    donacion.setIdDonacion(rs.getInt("id_donacion"));
+                    donacion.setEstado(rs.getString("estado"));
+
+                    Articulo articulo = new Articulo();
+                    articulo.setNombre(rs.getString("nombre_articulo"));
+                    donacion.setArticulo(articulo);
+
+                    solicitudesHechas.add(donacion);
+                }
+            } catch (SQLException e) {
+                System.out.println("Error al obtener solicitudes hechas: " + e.getMessage());
+            }
+
+            return solicitudesHechas;
+        }
+
+
+ }

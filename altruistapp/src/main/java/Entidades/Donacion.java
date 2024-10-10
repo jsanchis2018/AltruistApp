@@ -11,6 +11,15 @@ public class Donacion {
     private String estado;
     private Usuario usuarioSolicitante;
     private Articulo articulo;
+    
+    public static String estadoPendiente = "Pendiente";
+    public static String estadoSolicitado = "Solicitado";
+    public static String estadoReservado = "Reservado";
+    public static String estadoDonado = "Donado";
+    
+    public Donacion() {
+     
+    }
 
     // Getters y Setters
     public int getIdDonacion() {
@@ -77,12 +86,4 @@ public class Donacion {
         this.articulo = articulo;
     }
 
-    public String getNombreArticulo() {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
-    }
-
-    public void setNombreArticulo(String string) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
-    }
-    
 }

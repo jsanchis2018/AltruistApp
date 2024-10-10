@@ -1,6 +1,8 @@
 package Entidades;
 
 public class Articulo {
+
+    static String getNombre;
     private int idArticulo;
     private String nombre;
     private String estado;
@@ -23,7 +25,7 @@ public class Articulo {
         this.nombre = nombre;
     }
 
-    public String getEstado() {
+    public String getEstado() {        
         return estado;
     }
 
