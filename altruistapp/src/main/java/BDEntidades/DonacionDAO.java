@@ -11,16 +11,15 @@ import java.util.List;
 import Entidades.Usuario;
 import java.sql.DriverManager;
 
-
 public class DonacionDAO {
 
     public boolean ofrecerDonacion(Donacion donacion, Articulo articulo) {
         String queryDonacion = "INSERT INTO donacion (id_ofrecedonacion) VALUES (?)";
         String queryArticulo = "INSERT INTO articulo (nombre, estado, id_donacion, id_puntorecogida) VALUES (?, ?, ?, ?)";
-        
+
         try (Connection connection = DBConnection.getConnection()) {
             connection.setAutoCommit(false); // Empezar transacción
-            
+
             try (PreparedStatement stmtDonacion = connection.prepareStatement(queryDonacion, PreparedStatement.RETURN_GENERATED_KEYS)) {
                 stmtDonacion.setInt(1, donacion.getIdOfreceDonacion());
                 stmtDonacion.executeUpdate();
@@ -46,13 +45,12 @@ public class DonacionDAO {
         }
         return false;
     }
-    
+
     public List<Articulo> verArticulosDisponibles() {
         String query = "SELECT * FROM articulo a JOIN donacion d ON a.id_donacion = d.id_donacion WHERE d.estado = 'Pendiente'";
         List<Articulo> listaArticulos = new ArrayList<>();
-        
-        try (Connection connection = DBConnection.getConnection();
-             PreparedStatement stmt = connection.prepareStatement(query)) {
+
+        try (Connection connection = DBConnection.getConnection(); PreparedStatement stmt = connection.prepareStatement(query)) {
             ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
                 Articulo articulo = new Articulo();
@@ -68,11 +66,10 @@ public class DonacionDAO {
     }
 
     public boolean aceptarDonacion(int idArticulo, int idAceptaDonacion) {
-        String query = "UPDATE donacion SET id_aceptadonacion = ?, estado = 'Aceptada', fecha_aceptaciondonacion = CURRENT_TIMESTAMP " +
-                       "WHERE id_donacion = (SELECT id_donacion FROM articulo WHERE id_articulo = ?)";
+        String query = "UPDATE donacion SET id_aceptadonacion = ?, estado = 'Aceptada', fecha_aceptaciondonacion = CURRENT_TIMESTAMP "
+                + "WHERE id_donacion = (SELECT id_donacion FROM articulo WHERE id_articulo = ?)";
 
-        try (Connection connection = DBConnection.getConnection();
-             PreparedStatement stmt = connection.prepareStatement(query)) {
+        try (Connection connection = DBConnection.getConnection(); PreparedStatement stmt = connection.prepareStatement(query)) {
             stmt.setInt(1, idAceptaDonacion);
             stmt.setInt(2, idArticulo);
             return stmt.executeUpdate() > 0; // Retorna true si se actualizó correctamente
@@ -84,13 +81,13 @@ public class DonacionDAO {
 
     public List<Donacion> verSolicitudesPendientes(int idDonante) {
         List<Donacion> solicitudes = new ArrayList<>();
-        String query = "SELECT d.id_donacion, d.estado, a.nombre AS nombre_articulo, u.nombre_usuario " +
-                       "FROM donacion d " +
-                       "JOIN articulo a ON d.id_donacion = a.id_donacion " +
-                       "LEFT JOIN usuario u ON d.id_aceptadonacion = u.id_usuario " + // Cambié a LEFT JOIN para evitar errores
-                       "WHERE d.id_ofrecedonacion = ? AND d.estado = 'Pendiente'";
-        try (Connection connection = DBConnection.getConnection();
-             PreparedStatement stmt = connection.prepareStatement(query)) {
+        String query = "SELECT d.id_donacion, d.estado, a.nombre AS nombre_articulo, u.nombre_usuario "
+                + "FROM donacion d "
+                + "JOIN articulo a ON d.id_donacion = a.id_donacion "
+                + "LEFT JOIN usuario u ON d.id_aceptadonacion = u.id_usuario "
+                + // Cambié a LEFT JOIN para evitar errores
+                "WHERE d.id_ofrecedonacion = ? AND d.estado = 'Pendiente'";
+        try (Connection connection = DBConnection.getConnection(); PreparedStatement stmt = connection.prepareStatement(query)) {
             stmt.setInt(1, idDonante);
             ResultSet rs = stmt.executeQuery();
 
@@ -115,13 +112,9 @@ public class DonacionDAO {
         return solicitudes;
     }
 
-
-
-
     public boolean actualizarEstadoDonacion(int idDonacion, String nuevoEstado) {
         String query = "UPDATE donacion SET estado = ? WHERE id_donacion = ?";
-        try (Connection connection = DBConnection.getConnection();
-             PreparedStatement stmt = connection.prepareStatement(query)) {
+        try (Connection connection = DBConnection.getConnection(); PreparedStatement stmt = connection.prepareStatement(query)) {
             stmt.setString(1, nuevoEstado);
             stmt.setInt(2, idDonacion);
             int filasActualizadas = stmt.executeUpdate();
@@ -134,59 +127,59 @@ public class DonacionDAO {
 
     public List<Donacion> mostrarSolicitudesRealizadas(int idUsuario) {
         List<Donacion> solicitudesRecibidas = new ArrayList<>();
-        String query = "SELECT d.id_donacion, d.estado, a.nombre AS nombre_articulo " +
-                           "FROM donacion d " +
-                           "JOIN articulo a ON d.id_donacion = a.id_donacion " +
-                           "WHERE d.id_aceptadonacion = ?";
+        String query = "SELECT d.id_donacion, d.estado, a.nombre AS nombre_articulo "
+                + "FROM donacion d "
+                + "JOIN articulo a ON d.id_donacion = a.id_donacion "
+                + "WHERE d.id_aceptadonacion = ?";
 
-    try (Connection connection = DBConnection.getConnection();
-             PreparedStatement stmt = connection.prepareStatement(query)) {
-        stmt.setInt(1, idUsuario);
-        ResultSet rs = stmt.executeQuery();
+        try (Connection connection = DBConnection.getConnection(); PreparedStatement stmt = connection.prepareStatement(query)) {
+            stmt.setInt(1, idUsuario);
+            ResultSet rs = stmt.executeQuery();
 
-        while (rs.next()) {
-            Donacion donacion = new Donacion();
-            donacion.setIdDonacion(rs.getInt("id_donacion"));
-            donacion.setEstado(rs.getString("estado"));
-            // Completa la inicialización de la donación según tu estructura de datos
-            solicitudesRecibidas.add(donacion);
-        }
+            while (rs.next()) {
+                Donacion donacion = new Donacion();
+                donacion.setIdDonacion(rs.getInt("id_donacion"));
+                donacion.setEstado(rs.getString("estado"));
+
+                Articulo articulo = new Articulo();
+                articulo.setNombre(rs.getString("nombre_articulo"));
+                donacion.setArticulo(articulo);
+                solicitudesRecibidas.add(donacion);
+            }
         } catch (SQLException e) {
-        System.out.println(e.getMessage());
+            System.out.println(e.getMessage());
         }
 
         return solicitudesRecibidas;
     }
-    
-        public List<Donacion> mostrarDonacionesHechas(int idUsuario) {
-            List<Donacion> solicitudesHechas = new ArrayList<>();
-            String query = "SELECT d.id_donacion, d.estado, a.nombre AS nombre_articulo " +
-                           "FROM donacion d " +
-                           "JOIN articulo a ON d.id_donacion = a.id_donacion " +
-                           "WHERE d.id_ofrecedonacion = ?";
 
-            try (Connection connection = DBConnection.getConnection();
-                 PreparedStatement stmt = connection.prepareStatement(query)) {
-                stmt.setInt(1, idUsuario);
-                ResultSet rs = stmt.executeQuery();
+    public List<Donacion> mostrarDonacionesHechas(int idUsuario) {
+        List<Donacion> solicitudesHechas = new ArrayList<>();
+        String query = "SELECT d.id_donacion, d.estado, a.nombre AS nombre_articulo "
+                + "FROM donacion d "
+                + "JOIN articulo a ON d.id_donacion = a.id_donacion "
+                + "WHERE d.id_ofrecedonacion = ?";
 
-                while (rs.next()) {
-                    Donacion donacion = new Donacion();
-                    donacion.setIdDonacion(rs.getInt("id_donacion"));
-                    donacion.setEstado(rs.getString("estado"));
+        try (Connection connection = DBConnection.getConnection(); PreparedStatement stmt = connection.prepareStatement(query)) {
+            stmt.setInt(1, idUsuario);
+            ResultSet rs = stmt.executeQuery();
 
-                    Articulo articulo = new Articulo();
-                    articulo.setNombre(rs.getString("nombre_articulo"));
-                    donacion.setArticulo(articulo);
+            while (rs.next()) {
+                Donacion donacion = new Donacion();
+                donacion.setIdDonacion(rs.getInt("id_donacion"));
+                donacion.setEstado(rs.getString("estado"));
 
-                    solicitudesHechas.add(donacion);
-                }
-            } catch (SQLException e) {
-                System.out.println("Error al obtener solicitudes hechas: " + e.getMessage());
+                Articulo articulo = new Articulo();
+                articulo.setNombre(rs.getString("nombre_articulo"));
+                donacion.setArticulo(articulo);
+
+                solicitudesHechas.add(donacion);
             }
-
-            return solicitudesHechas;
+        } catch (SQLException e) {
+            System.out.println("Error al obtener solicitudes hechas: " + e.getMessage());
         }
 
+        return solicitudesHechas;
+    }
 
- }
+}
