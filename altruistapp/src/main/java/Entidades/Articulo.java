@@ -1,7 +1,7 @@
 package Entidades;
 
 public class Articulo {
-
+    //atributos
     static String getNombre;
     private int idArticulo;
     private String nombre;
