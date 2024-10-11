@@ -238,7 +238,8 @@ public class Menus {
         for (int i = 0; i < articulos.size(); i++) {
             System.out.println((i + 1) + ". " + articulos.get(i).getNombre());
         }
-        System.out.print("Selecciona un artículo para solicitarlo: ");
+        System.out.println("0. Salir");
+        System.out.println("Selecciona una opcion: ");
         int seleccion = scanner.nextInt();
         scanner.nextLine();
 
