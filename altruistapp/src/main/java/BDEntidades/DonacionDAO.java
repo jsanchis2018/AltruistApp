@@ -13,31 +13,36 @@ import java.sql.DriverManager;
 
 public class DonacionDAO {
 
+    // Método para ofrecer una donación
     public boolean ofrecerDonacion(Donacion donacion, Articulo articulo) {
-        String queryDonacion = "INSERT INTO donacion (id_ofrecedonacion) VALUES (?)";
-        String queryArticulo = "INSERT INTO articulo (nombre, estado, id_donacion, id_puntorecogida) VALUES (?, ?, ?, ?)";
+        String queryDonacion = "INSERT INTO donacion (id_ofrecedonacion, estado, fecha_ingresoarticulo) VALUES (?, 'Pendiente', CURRENT_TIMESTAMP)";
+        String queryArticulo = "INSERT INTO articulo (nombre, estado, id_donacion, id_puntorecogida) VALUES (?, 'Disponible', ?, ?)";
 
         try (Connection connection = DBConnection.getConnection()) {
-            connection.setAutoCommit(false); // Empezar transacción
+            connection.setAutoCommit(false); // Empezar la transacción
 
+            // Insertar la donación
             try (PreparedStatement stmtDonacion = connection.prepareStatement(queryDonacion, PreparedStatement.RETURN_GENERATED_KEYS)) {
                 stmtDonacion.setInt(1, donacion.getIdOfreceDonacion());
                 stmtDonacion.executeUpdate();
                 ResultSet generatedKeys = stmtDonacion.getGeneratedKeys();
+
                 if (generatedKeys.next()) {
-                    int idDonacion = generatedKeys.getInt(1);
+                    int idDonacion = generatedKeys.getInt(1); // Obtener el ID de la donación generada
+
+                    // Insertar el artículo relacionado con la donación
                     try (PreparedStatement stmtArticulo = connection.prepareStatement(queryArticulo)) {
                         stmtArticulo.setString(1, articulo.getNombre());
-                        stmtArticulo.setString(2, articulo.getEstado());
-                        stmtArticulo.setInt(3, idDonacion);
-                        stmtArticulo.setInt(4, articulo.getIdPuntoDeRecogida());
+                        stmtArticulo.setInt(2, idDonacion);
+                        stmtArticulo.setInt(3, articulo.getIdPuntoDeRecogida());
                         stmtArticulo.executeUpdate();
                     }
                 }
-                connection.commit(); // Confirmar transacción
+
+                connection.commit(); // Confirmar la transacción
                 return true;
             } catch (SQLException e) {
-                connection.rollback(); // Deshacer en caso de error
+                connection.rollback(); // Deshacer la transacción en caso de error
                 System.out.println("Error al ofrecer donación: " + e.getMessage());
             }
         } catch (SQLException e) {
@@ -46,8 +51,12 @@ public class DonacionDAO {
         return false;
     }
 
+    // Método para ver artículos disponibles
     public List<Articulo> verArticulosDisponibles() {
-        String query = "SELECT * FROM articulo a JOIN donacion d ON a.id_donacion = d.id_donacion WHERE d.estado = 'Pendiente'";
+        String query = "SELECT a.id_articulo, a.nombre, a.estado "
+                     + "FROM articulo a "
+                     + "JOIN donacion d ON a.id_donacion = d.id_donacion "
+                     + "WHERE d.estado = 'Pendiente'";
         List<Articulo> listaArticulos = new ArrayList<>();
 
         try (Connection connection = DBConnection.getConnection(); PreparedStatement stmt = connection.prepareStatement(query)) {
@@ -65,9 +74,10 @@ public class DonacionDAO {
         return listaArticulos;
     }
 
+    // Método para aceptar una donación
     public boolean aceptarDonacion(int idArticulo, int idAceptaDonacion) {
         String query = "UPDATE donacion SET id_aceptadonacion = ?, estado = 'Aceptada', fecha_aceptaciondonacion = CURRENT_TIMESTAMP "
-                + "WHERE id_donacion = (SELECT id_donacion FROM articulo WHERE id_articulo = ?)";
+                     + "WHERE id_donacion = (SELECT id_donacion FROM articulo WHERE id_articulo = ?)";
 
         try (Connection connection = DBConnection.getConnection(); PreparedStatement stmt = connection.prepareStatement(query)) {
             stmt.setInt(1, idAceptaDonacion);
@@ -79,14 +89,15 @@ public class DonacionDAO {
         return false;
     }
 
+    // Método para ver solicitudes pendientes de un donante
     public List<Donacion> verSolicitudesPendientes(int idDonante) {
         List<Donacion> solicitudes = new ArrayList<>();
         String query = "SELECT d.id_donacion, d.estado, a.nombre AS nombre_articulo, u.nombre_usuario "
-                + "FROM donacion d "
-                + "JOIN articulo a ON d.id_donacion = a.id_donacion "
-                + "LEFT JOIN usuario u ON d.id_aceptadonacion = u.id_usuario "
-                + // Cambié a LEFT JOIN para evitar errores
-                "WHERE d.id_ofrecedonacion = ? AND d.estado = 'Pendiente'";
+                     + "FROM donacion d "
+                     + "JOIN articulo a ON d.id_donacion = a.id_donacion "
+                     + "LEFT JOIN usuario u ON d.id_aceptadonacion = u.id_usuario "
+                     + "WHERE d.id_ofrecedonacion = ? AND d.estado = 'Pendiente'";
+
         try (Connection connection = DBConnection.getConnection(); PreparedStatement stmt = connection.prepareStatement(query)) {
             stmt.setInt(1, idDonante);
             ResultSet rs = stmt.executeQuery();
@@ -112,6 +123,7 @@ public class DonacionDAO {
         return solicitudes;
     }
 
+    // Método para actualizar el estado de una donación
     public boolean actualizarEstadoDonacion(int idDonacion, String nuevoEstado) {
         String query = "UPDATE donacion SET estado = ? WHERE id_donacion = ?";
         try (Connection connection = DBConnection.getConnection(); PreparedStatement stmt = connection.prepareStatement(query)) {
@@ -125,12 +137,13 @@ public class DonacionDAO {
         }
     }
 
+    // Método para mostrar solicitudes realizadas por el usuario (donaciones aceptadas)
     public List<Donacion> mostrarSolicitudesRealizadas(int idUsuario) {
         List<Donacion> solicitudesRecibidas = new ArrayList<>();
         String query = "SELECT d.id_donacion, d.estado, a.nombre AS nombre_articulo "
-                + "FROM donacion d "
-                + "JOIN articulo a ON d.id_donacion = a.id_donacion "
-                + "WHERE d.id_aceptadonacion = ?";
+                     + "FROM donacion d "
+                     + "JOIN articulo a ON d.id_donacion = a.id_donacion "
+                     + "WHERE d.id_aceptadonacion = ?";
 
         try (Connection connection = DBConnection.getConnection(); PreparedStatement stmt = connection.prepareStatement(query)) {
             stmt.setInt(1, idUsuario);
@@ -153,12 +166,13 @@ public class DonacionDAO {
         return solicitudesRecibidas;
     }
 
+    // Método para mostrar las donaciones hechas por el usuario
     public List<Donacion> mostrarDonacionesHechas(int idUsuario) {
         List<Donacion> solicitudesHechas = new ArrayList<>();
         String query = "SELECT d.id_donacion, d.estado, a.nombre AS nombre_articulo "
-                + "FROM donacion d "
-                + "JOIN articulo a ON d.id_donacion = a.id_donacion "
-                + "WHERE d.id_ofrecedonacion = ?";
+                     + "FROM donacion d "
+                     + "JOIN articulo a ON d.id_donacion = a.id_donacion "
+                     + "WHERE d.id_ofrecedonacion = ?";
 
         try (Connection connection = DBConnection.getConnection(); PreparedStatement stmt = connection.prepareStatement(query)) {
             stmt.setInt(1, idUsuario);
@@ -183,3 +197,4 @@ public class DonacionDAO {
     }
 
 }
+
