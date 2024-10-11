@@ -21,7 +21,7 @@ public class Menus {
         this.scanner = scanner;
         this.usuarioDAO = new UsuarioDAO();
         this.donacionDAO = new DonacionDAO();
-        this.usuarioLogueado = null;
+        
     }
 
     public void mostrarMenuPrincipal() {
@@ -177,17 +177,30 @@ public class Menus {
         String nombreArticulo = scanner.nextLine();
         
         //Articulo
-        System.out.print("Estado del artículo : ");
+     System.out.print("Estado del artículo: ");
         System.out.println("");
         System.out.println("1. Nuevo");
         System.out.println("2. Usado");
+        System.out.println("3. Para reparar"); // Opción adicional
         System.out.print("Selecciona una opción: ");
         int option_user = scanner.nextInt();
-        String estadoArticulo = "Nuevo";
+        String estadoArticulo;
+
+        switch (option_user) {
+            case 1:
+                estadoArticulo = "Nuevo";
+                break;
+            case 2:
+                estadoArticulo = "Usado";
+                break;
+            case 3:
+                estadoArticulo = "Para reparar";
+                break;
+            default:
+                estadoArticulo = "Opción no válida";
+                break;
+        }
         
-        if(option_user != 1){
-            estadoArticulo = "Usado";
-        } 
 
         System.out.println("Establece punto de recogida:");
         System.out.println("1. Locutorio");
