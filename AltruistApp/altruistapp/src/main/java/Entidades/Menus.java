@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Scanner;
 
 public class Menus {
+
     private final Scanner scanner;
     private final UsuarioDAO usuarioDAO;
     private final DonacionDAO donacionDAO;
@@ -21,7 +22,7 @@ public class Menus {
         this.scanner = scanner;
         this.usuarioDAO = new UsuarioDAO();
         this.donacionDAO = new DonacionDAO();
-        
+
     }
 
     public void mostrarMenuPrincipal() {
@@ -34,10 +35,14 @@ public class Menus {
         scanner.nextLine();
 
         switch (opcion) {
-            case 1 -> iniciarSesion();
-            case 2 -> registrarse();
-            case 3 -> System.exit(0);
-            default -> System.out.println("Opción no válida.");
+            case 1 ->
+                iniciarSesion();
+            case 2 ->
+                registrarse();
+            case 3 ->
+                System.exit(0);
+            default ->
+                System.out.println("Opción no válida.");
         }
     }
 
@@ -87,19 +92,22 @@ public class Menus {
             scanner.nextLine();
 
             switch (opcion) {
-                case 1 -> ofrecerDonacion();
-                case 2 -> aceptarDonacion();
-                case 3 -> revisarSolicitudes();
+                case 1 ->
+                    ofrecerDonacion();
+                case 2 ->
+                    aceptarDonacion();
+                case 3 ->
+                    revisarSolicitudes();
                 case 4 -> {
                     usuarioLogueado = null;
                     return;
                 }
-                default -> System.out.println("Opción no válida.");
+                default ->
+                    System.out.println("Opción no válida.");
             }
         }
     }
-    
-    
+
     public void aceptarSolicitud() {
         if (estadoSolicitado.equals(this.estado)) {
             this.estado = estadoReservado;
@@ -117,7 +125,7 @@ public class Menus {
             throw new IllegalStateException("La donación aún no está realizada.");
         }
     }
-    
+
     public String obtenerEstado() {
         return (String) this.estado;
     }
@@ -131,9 +139,12 @@ public class Menus {
         scanner.nextLine(); // Limpiar el buffer
 
         switch (opcion) {
-            case 1 -> mostrarDonacionesHechas();
-            case 2 -> mostrarSolicitudesRealizadas();
-            default -> System.out.println("Opción no válida. Intente de nuevo.");
+            case 1 ->
+                mostrarDonacionesHechas();
+            case 2 ->
+                mostrarSolicitudesRealizadas();
+            default ->
+                System.out.println("Opción no válida. Intente de nuevo.");
         }
     }
 
@@ -157,27 +168,25 @@ public class Menus {
         if (solicitudesRecibidas.isEmpty()) {
             System.out.println("Sin donaciones solicitadas.");
         } else {
-            
+
             // verificar este codigo de solicitudes
             for (Donacion donacion : solicitudesRecibidas) {
                 Articulo articulo = donacion.getArticulo();
                 var nombreArticulo = (articulo != null) ? articulo.getNombre() : "Artículo no disponible";
                 String estadoDonado = donacion.getEstado().equals(Donacion.estadoDonado) ? "Donado" : "Aceptado";
                 System.out.println("ID Donación: " + donacion.getIdDonacion() + ", Artículo: " + nombreArticulo + ", Estado: " + estadoDonado);
-         
+
             }
         }
     }
-        
-
 
     private void ofrecerDonacion() {
         System.out.println("\n---- OFRECER DONACIÓN ----");
         System.out.print("Nombre del artículo: ");
         String nombreArticulo = scanner.nextLine();
-        
+
         //Articulo
-     System.out.print("Estado del artículo: ");
+        System.out.print("Estado del artículo: ");
         System.out.println("");
         System.out.println("1. Nuevo");
         System.out.println("2. Usado");
@@ -200,7 +209,6 @@ public class Menus {
                 estadoArticulo = "Opción no válida";
                 break;
         }
-        
 
         System.out.println("Establece punto de recogida:");
         System.out.println("1. Locutorio");
@@ -228,39 +236,51 @@ public class Menus {
     }
 
     private void aceptarDonacion() {
-        System.out.println("\n---- ARTICULOS DONADOS ----");
-        List<Articulo> articulos = donacionDAO.verArticulosDisponibles();
-        if (articulos.isEmpty()) {
-            System.out.println("No hay donativos disponibles.");
-            return;
-        }
+        while (true) { // Usar un bucle para permitir múltiples selecciones
+            System.out.println("\n---- ARTICULOS DONADOS ----");
+            List<Articulo> articulos = donacionDAO.verArticulosDisponibles();
+            if (articulos.isEmpty()) {
+                System.out.println("No hay donativos disponibles.");
+                return;
+            }
 
-        for (int i = 0; i < articulos.size(); i++) {
-            System.out.println((i + 1) + ". " + articulos.get(i).getNombre());
-        }
-        System.out.println("0. Salir");
-        System.out.println("Selecciona una opcion: ");
-        int seleccion = scanner.nextInt();
-        scanner.nextLine();
-
-        if (seleccion > 0 && seleccion <= articulos.size()) {
-            Articulo articuloSeleccionado = articulos.get(seleccion - 1);
-            System.out.println("Artículo seleccionado: " + articuloSeleccionado.getNombre());
-            System.out.println("1. Solicitar donación");
-            System.out.println("2. Volver al menú anterior");
-            System.out.print("Selecciona una opción: ");
-            int opcion = scanner.nextInt();
+            for (int i = 0; i < articulos.size(); i++) {
+                System.out.println((i + 1) + ". " + articulos.get(i).getNombre());
+            }
+            System.out.println("0. Salir");
+            System.out.print("Selecciona una opcion: ");
+            int seleccion = scanner.nextInt();
             scanner.nextLine();
 
-            if (opcion == 1) {
-                if (donacionDAO.aceptarDonacion(articuloSeleccionado.getIdArticulo(), usuarioLogueado.getIdUsuario())) {
-                    System.out.println("Donación SOLICITADA exitosamente.");
-                } else {
-                    System.out.println("Error al solicitar la donación.");
+            if (seleccion == 0) {
+                return; // Salir del método
+            } else if (seleccion > 0 && seleccion <= articulos.size()) {
+                Articulo articuloSeleccionado = articulos.get(seleccion - 1);
+                System.out.println("Artículo seleccionado: " + articuloSeleccionado.getNombre());
+                System.out.println("1. Solicitar donación");
+                System.out.println("2. Volver al menú anterior");
+                System.out.print("Selecciona una opción: ");
+                int opcion = scanner.nextInt();
+                scanner.nextLine();
+
+                switch (opcion) {
+                    case 1 -> {
+                        if (donacionDAO.aceptarDonacion(articuloSeleccionado.getIdArticulo(), usuarioLogueado.getIdUsuario())) {
+                            System.out.println("Donación SOLICITADA exitosamente.");
+                        } else {
+                            System.out.println("Error al solicitar la donación.");
+                        }
+                    }
+                    case 2 -> {
+                        // Vuelve al inicio del bucle para mostrar la lista de artículos nuevamente
+                        continue; // Esto ahora funciona porque estamos dentro de un bucle
+                    }
+                    default ->
+                        System.out.println("Selección no válida.");
                 }
+            } else {
+                System.out.println("Selección no válida.");
             }
-        } else {
-            System.out.println("Selección no válida.");
         }
     }
 }
